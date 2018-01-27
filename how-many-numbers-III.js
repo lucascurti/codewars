@@ -1,61 +1,50 @@
 // https://www.codewars.com/kata/5877e7d568909e5ff90017e6/train/javascript
 
-function isOrdered(array) {
-  let increasingOrder = true;
-  const end = array.length - 1;
-  for (let i = 0; i < end; i += 1) {
-    if (array[i] > array[i + 1]) {
-      increasingOrder = false;
-      break;
-    }
-  }
-  return increasingOrder;
-}
-
-// QUE EL ARRAY VENGA COMO NUMERO!!!!!
-function sumArray(array) {
-  // console.log(array);
-  return array.reduce((accum, current) => accum + current, 0);
-}
-
-function findEnd(n, k) {
-  // console.log(n, k);
-  let end;
-  for (let index = 0; index < 10; index++) {
-    let a = new Array(k + 1).join(index);
-    a = a.split('').map(Number);
-    if (sumArray(a) > n) {
-      end = a;
-      break;
-    } else {
-      end = a;
-    }
-  }
-  return Number(end.join('')) + 1;
-}
-
 function findAll(n, k) {
-  // console.log(n, k);
   let collect = [];
-  const start = Math.pow(10, k - 1);
-  const end = findEnd(n, k);
-  // console.log(end);
-  for (let i = start; i < end; i += 1) {
-    let digits = i
-      .toString()
-      .split('')
-      .map(Number);
-    let sum = sumArray(digits);
+  const start = Math.pow(10, k - 1); // for k = 3 => start = 100
+  const end = Math.pow(10, k) - 1; // for k = 3 => end = 999
 
-    if (sum === n && isOrdered(digits)) {
-      collect.push(digits.join(''));
+  let temporaryStart = start;
+
+  while (temporaryStart <= end) {
+    let breakForLoop = false;
+    for (let i = temporaryStart; i <= end; i += 1) {
+      const numberString = i.toString();
+      // Sum all the digits of the number
+      let sum = 0;
+      for (let j = 0; j < k; j += 1) {
+        const x = +numberString[j];
+        const y = +numberString[j + 1];
+        // if a digit is smaller than the previous digit,
+        // set the new start and break the current loop
+        if (y < x) {
+          temporaryStart = +(
+            numberString.slice(0, j + 1) + new Array(k - j).join(x)
+          );
+          breakForLoop = true; // breaks the parent For Loop
+          break;
+        }
+        sum += x;
+      }
+      if (breakForLoop) break;
+      // if the sum of all the digits = n, push it to the collection
+      if (sum === n) {
+        collect.push(numberString);
+      }
+      // If condition to break the While Loop
+      if (temporaryStart === end) temporaryStart += 1;
     }
   }
-  let final = [];
+
+  const final = [];
   final[0] = collect.length;
   final[1] = collect[0];
   final[2] = collect[collect.length - 1];
   return final[0] === 0 ? [] : final;
 }
 
+console.log(findAll(10, 3));
 console.log(findAll(27, 3));
+console.log(findAll(84, 4));
+console.log(findAll(35, 6));
